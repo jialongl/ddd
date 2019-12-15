@@ -11,10 +11,10 @@
 # The study is used to analyze the DAILY CLOSING performance of an equity against 
 # the expected move (EM) for any ticker. 
 # The study works for daily aggregation only. 
-# Best performance will be against ETF's due to the option and stock implied volatility
+# Best performance will be against ETF's due to the option and stock implied volatility 
 # typically being close. When looking at equities, earnings will cause a difference 
 # between volatility for options and stock. That is, option volatility may be 
-# elevated as compared to the stock volatility. Since option volatility cannont 
+# elevated as compared to the stock volatility. Since option volatility cannot 
 # be accessed from ThinkScript, the script EM will be lower than the EM found 
 # in the option chain. 
 # 
@@ -41,21 +41,15 @@
 
 def agg = GetAggregationPeriod();
 
-def err_label = if agg == AggregationPeriod.DAY then 
-no 
-else 
+def err_label = if agg == AggregationPeriod.DAY then
+no
+else
 yes;
 
-AddLabel(err_label, "Expected Move Study - Works with daily aggregation only.", Color.RED);
+AddLabel(err_label, "Expected Move Study works with daily aggregation only.", Color.PINK);
 
-input em_skew_percent = 70;
+input em_put_skew_multi = 1.5;
 input show_em_calc = yes;
-
-# 
-# em_bandwith allow for narrow or wider ranges to be tested. 1.0 is normal. 
-# for 0.5 Std Dev, then em_bandwidth = 0.5 Entered in % changed to decimal. 
-# That is, allows for ajustment so that analysis can be made of Iron Fly expected #performance.
-
 
 def ivlast;
 def expmove;
@@ -79,9 +73,9 @@ def tooday = GetDayOfWeek(ymd);
 if tooday == 1 or (GetDayOfWeek(ymd[1]) == 5 and tooday == 2)
 then {
     ivlast = imp_volatility()[1];
-    expmove = close[1] * ivlast * Sqrt(6) / Sqrt(365) * em_skew_percent / 100;
+    expmove = close[1] * ivlast * Sqrt(6 / 365);
     high_bar = close[1] + expmove;
-    low_bar = close[1] - expmove;
+    low_bar = close[1] - expmove * em_put_skew_multi;
     em_close = close[1];
 }
 else {
@@ -114,9 +108,5 @@ spxzero.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
 spxzero.SetLineWeight(2);
 
 
-##AddLabel(yes, "Warning-No Holiday Adjustment & Percent Occurance Calc Slightly #Understated (<1%)");
-AddLabel(show_em_calc, "IV[1] = " + ivlast, Color.LIME);
+AddLabel(show_em_calc, "IV[1] = " + ivlast,  Color.LIME);
 AddLabel(show_em_calc, "EM[1] = " + expmove, Color.LIME);
-#AddLabel(show_em_calc, "Last High = " + high_bar, Color.LIME);
-#AddLabel(show_em_calc, "Last Low = " + low_bar, Color.LIME);
-#AddLabel(show_em_calc, "EM Skew%,Stdev Adj%,Touches% = " + em_skew_percent + "," + em_bandwidth + "," + touches_percent, Color.LIME);
