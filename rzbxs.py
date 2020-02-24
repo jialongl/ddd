@@ -17,6 +17,8 @@ friends = [
 	426997987,
 	325753994,
 	527908836,
+	812826327,
+	131192040,
 ]
 if len(sys.argv) == 3 and sys.argv[2] == 'test':
 	friends = [friends[-1]]
